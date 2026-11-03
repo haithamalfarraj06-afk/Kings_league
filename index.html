@@ -411,7 +411,7 @@ function ask(title,fields,cb,extra=''){modal('<h3>'+title+'</h3>'+fields+extra+'
 const fld=(l,h)=>'<label>'+l+h+'</label>';
 function toggle(){const c=S.clk;if(c.run){c.base=now();c.run=false}else{c.at=Date.now();c.run=true}save();render()}
 function draw(){const k=Object.keys(CARDS).sort(()=>Math.random()-.5);S.cards=[k[0],k[1]];S.rev=[false,false]}
-function begin(){if(S.teams.some(x=>x.pl.filter(p=>p.name.trim()).length<MP()))return say(B('كل فريق يحتاج '+MP()+' لاعبين على الأقل','Each team needs at least '+MP()+' players'));S.teams.forEach((x,i)=>{x.n=x.n.trim()||B('الفريق ','Team ')+(i+1);x.p=x.pl.filter(p=>p.name.trim()).map(p=>(p.n||'')+' '+p.name.trim()).join('\n')});if(S.cur&&S.tour){S.teams.forEach((x,i)=>{const q=S.tour.teams[i==0?S.tour.R[S.cur.r][S.cur.m].a:S.tour.R[S.cur.r][S.cur.m].b];q.pres=x.pres||'';q.c=x.c;q.pl=x.pl.filter(p=>p.name.trim()).map(p=>({n:p.n,name:p.name.trim()}))})}S.an={};S.hold=null;S.cards=[null,null];S.dd=0;S.dsk=0;S.ev=[];S.nid=1;S.clk={run:false,at:0,base:0};S.started=false;S.ended=false;lastSc=[0,0];S.view='draw';save();render()}
+function begin(){if(S.teams.some(x=>x.pl.filter(p=>p.name.trim()).length<MP()))return say(B('كل فريق يحتاج '+MP()+' لاعبين على الأقل','Each team needs at least '+MP()+' players'));S.teams.forEach((x,i)=>{x.n=x.n.trim()||B('الفريق ','Team ')+(i+1);x.p=x.pl.filter(p=>p.name.trim()).map(p=>(p.n||'')+' '+p.name.trim()).join('\n')});if(S.cur&&S.tour){S.teams.forEach((x,i)=>{const q=S.tour.teams[i==0?tmx(S.cur.r,S.cur.m).a:tmx(S.cur.r,S.cur.m).b];q.pres=x.pres||'';q.c=x.c;q.pl=x.pl.filter(p=>p.name.trim()).map(p=>({n:p.n,name:p.name.trim()}))})}S.an={};S.hold=null;S.cards=[null,null];S.dd=0;S.dsk=0;S.ev=[];S.nid=1;S.clk={run:false,at:0,base:0};S.started=false;S.ended=false;lastSc=[0,0];S.view='draw';save();render()}
 const SH=(icn,title,sub,body,foot)=>'<div class="sh-h"><span class="sh-i">'+ic(icn,30)+'</span><div><div class="sh-t">'+title+'</div>'+(sub?'<div class="sh-s">'+sub+'</div>':'')+'</div></div>'+body+'<div class="sh-f">'+(foot==null?'<button onclick="cancelM()">'+t('cancel')+'</button>':foot)+'</div>';
 const resBtns=(a,b)=>'<div class="rb2"><button class="ok" onclick="'+a[0]+'">'+ic('check',28)+'<b>'+a[1]+'</b><small>'+a[2]+'</small></button><button class="no" onclick="'+b[0]+'">'+ic('cross',28)+'<b>'+b[1]+'</b><small>'+b[2]+'</small></button></div>';
 function holdOpen(){if(S.hold==null){S.hold=!!S.clk.run;if(S.clk.run){S.clk.base=now();S.clk.run=false}}}
@@ -457,10 +457,10 @@ function pres(i){const s=now();if(S.ended)return;
 function presRes(i,ok){closeM();holdDone();add({type:'pres',team:i,ok:ok});if(ok)S.ev.push({id:S.nid++,t:Math.floor(now()),type:'score',team:i,pts:1,why:B('ركلة الرئيس','President')});save();render();cardFx('pres',ok,ok?1:0)}
 function mkTour(){tdInit();const td=S.td,nm=td.names.slice(0,td.size).map(x=>x.trim());if(nm.some(x=>!x))return say(B('اكتب اسم كل فريق','Name every team'));
  const teams=nm.map((n,i)=>({n,c:TCOL[i],pres:'',pl:defPl()})),R=[];let c=td.size/2;R.push(Array.from({length:c},(_,i)=>({a:2*i,b:2*i+1,w:null,sc:null,so:null})));c/=2;while(c>=1){R.push(Array.from({length:c},()=>({a:null,b:null,w:null,sc:null,so:null})));c/=2}
- S.tour={name:td.name.trim()||'KINGS CUP',teams,R,champ:null,side:td.side||7};save();render()}
-function playT(r,m){const T0=S.tour,M=T0.R[r][m];S.teams=[M.a,M.b].map(x=>{const q=T0.teams[x];return{n:q.n,c:q.c,pres:q.pres||'',pl:q.pl.map(p=>({n:p.n,name:p.name}))}});S.side=T0.side||7;S.cur={r,m};S.sti=0;S.view='setup';render()}
-function advTour(w,d){const{r,m}=S.cur,T0=S.tour,M=T0.R[r][m];M.w=w?M.b:M.a;M.sc=[d.sc[0],d.sc[1]];M.so=d.sc[0]==d.sc[1]?[d.so[0],d.so[1]]:null;
- if(r+1<T0.R.length)T0.R[r+1][m>>1][m%2?'b':'a']=M.w;else{T0.champ=M.w;flash('<div class="gf">'+ic('trophy',140)+'<div class="gt">'+H(T0.teams[M.w].n)+'</div></div>',3000)}S.cur=null}
+ S.tour={name:td.name.trim()||'KINGS CUP',teams,R,champ:null,side:td.side||7,third:td.size>=4?{a:null,b:null,w:null,sc:null,so:null}:null};save();render()}
+function playT(r,m){const T0=S.tour,M=tmx(r,m);S.teams=[M.a,M.b].map(x=>{const q=T0.teams[x];return{n:q.n,c:q.c,pres:q.pres||'',pl:q.pl.map(p=>({n:p.n,name:p.name}))}});S.side=T0.side||7;S.cur={r,m};S.sti=0;S.view='setup';render()}
+function advTour(w,d){const{r,m}=S.cur,T0=S.tour,M=tmx(r,m);M.w=w?M.b:M.a;M.sc=[d.sc[0],d.sc[1]];M.so=d.sc[0]==d.sc[1]?[d.so[0],d.so[1]]:null;
+ if(r<0){}else if(r+1<T0.R.length){T0.R[r+1][m>>1][m%2?'b':'a']=M.w;if(T0.third&&r==T0.R.length-2)T0.third[m?'b':'a']=w?M.a:M.b}else{T0.champ=M.w;flash('<div class="gf">'+ic('trophy',140)+'<div class="gt">'+H(T0.teams[M.w].n)+'</div></div>',3000)}S.cur=null}
 function resetT(){modal(SH('trophy',B('بطولة جديدة؟','New tournament?'),'','<div class="sh-d">'+B('سيتم حذف البطولة الحالية ونتائجها.','The current tournament and its results will be deleted.')+'</div>','<button class="gold big2" onclick="S.tour=null;S.cur=null;S.td=null;save();closeM();render()">'+ic('check',20)+t('ok')+'</button><button onclick="closeM()">'+t('cancel')+'</button>'))}
 function drawGo(){if(S.dd)return;draw();S.dd=1;render();setTimeout(()=>S.teams.forEach((x,i)=>{const e=$('#fi'+i);e&&e.classList.add('on')}),80);setTimeout(()=>{const b=$('#cgo');if(b)b.style.display=''},2000)}
 function confirmDraw(){S.started=true;S.dd=0;S.view='match';save();render();intro()}
@@ -509,7 +509,8 @@ function notify(m,k){const box=$('#nt');if(!box)return;[...box.children].forEach
  const kill=()=>{if(e.dataset.k)return;e.dataset.k=1;e.classList.add('out');setTimeout(()=>e.remove(),260)};
  e.onclick=kill;box.appendChild(e);while(box.children.length>3)box.firstChild.remove();setTimeout(kill,dur*1000)}
 const pgh=(icn,tt,sb)=>'<div class="ph"><span class="hx m">'+ic(icn,24)+'</span><div><h2>'+tt+'</h2>'+(sb?'<p>'+sb+'</p>':'')+'</div></div>';
-function rname(r,n){return r==n-1?B('النهائي','Final'):r==n-2?B('نصف النهائي','Semifinal'):r==n-3?B('ربع النهائي','Quarterfinal'):B('الدور ','Round ')+(r+1)}
+const tmx=(r,m)=>r<0?S.tour.third:S.tour.R[r][m];
+function rname(r,n){if(r<0)return B('مباراة المركز الثالث','Third-place match');return r==n-1?B('النهائي','Final'):r==n-2?B('نصف النهائي','Semifinal'):r==n-3?B('ربع النهائي','Quarterfinal'):B('الدور ','Round ')+(r+1)}
 const TCOL=Array.from({length:16},(_,i)=>i%2?'#cfd2e0':'#E9B949');
 function defPl(){return Array.from({length:8},(_,k)=>({n:String(k+1),name:B('لاعب ','Player ')+(k+1)}))}
 function setSide(n){S.side=n;render()}
@@ -606,7 +607,8 @@ function tourHTML(){
   +'<div class="row"><button class="big2" onclick="tdShuffle()">'+ic('rev',20)+B('خلط عشوائي','Shuffle')+'</button><button class="gold big2" onclick="mkTour()">'+ic('check',20)+B('إنشاء البطولة','Create')+'</button></div><button class="big2 ghost" style="margin-top:8px" onclick="S.view=\'menu\';render()">'+t('back')+'</button>'}
  const T0=S.tour,n=T0.R.length;let nx=null;
  T0.R.forEach((rd,r)=>rd.forEach((M,m)=>{if(!nx&&M.a!=null&&M.b!=null&&M.w==null)nx={r,m,M}}));
- const total=T0.R.reduce((a,rd)=>a+rd.length,0),done=T0.R.reduce((a,rd)=>a+rd.filter(M=>M.w!=null).length,0);
+ if(!nx&&T0.third&&T0.third.a!=null&&T0.third.b!=null&&T0.third.w==null)nx={r:-1,m:0,M:T0.third};
+ const total=T0.R.reduce((a,rd)=>a+rd.length,0)+(T0.third?1:0),done=T0.R.reduce((a,rd)=>a+rd.filter(M=>M.w!=null).length,0)+(T0.third&&T0.third.w!=null?1:0);
  const row=(M,k)=>{const idx=M[k],tm=idx==null?null:T0.teams[idx],win=M.w!=null&&M.w===idx,lose=M.w!=null&&!win,i=k=='a'?0:1,sc=M.sc?M.sc[i]:'',so=M.so?'<small>('+M.so[i]+')</small>':'';
   return'<div class="tr'+(win?' win':'')+(lose?' lose':'')+(tm?'':' tbd')+'" style="--c:'+(tm?H(tm.c):'#444')+'"><span class="tn2">'+(tm?H(tm.n):B('بانتظار الفائز','TBD'))+'</span>'+(win?ic('check',16):'')+'<span class="num">'+sc+so+'</span></div>'};
  const card=(M,r,m)=>{const ready=M.a!=null&&M.b!=null&&M.w==null;return'<div class="mc'+(ready?' ready':'')+'">'+row(M,'a')+row(M,'b')+(ready?'<button class="gold sm" onclick="playT('+r+','+m+')">'+ic('play',16)+B('ابدأ المباراة','Play match')+'</button>':'')+'</div>'};
@@ -616,7 +618,7 @@ function tourHTML(){
   :nx?'<div class="panel nxt"><div class="nh">'+ic('flag',18)+B('المباراة التالية','Next match')+' · '+rname(nx.r,n)+'</div><div class="vs"><span class="vt" style="--c:'+H(T0.teams[nx.M.a].c)+'">'+H(T0.teams[nx.M.a].n)+'</span><b class="num">VS</b><span class="vt" style="--c:'+H(T0.teams[nx.M.b].c)+'">'+H(T0.teams[nx.M.b].n)+'</span></div><button class="gold big2" onclick="playT('+nx.r+','+nx.m+')">'+ic('play',20)+B('ابدأ المباراة','Play match')+'</button></div>':'';
  return pgh('trophy',H(T0.name),done+' / '+total+' '+B('مباريات','matches'))+top
   +(n>1?'<div class="rch">'+T0.R.map((rd,r)=>'<button class="sm" onclick="goRd('+r+')">'+rname(r,n)+'</button>').join('')+'</div>':'')
-  +'<div class="brw"><div class="br">'+cols+'</div></div>'
+  +'<div class="brw"><div class="br">'+cols+'</div></div>'+(T0.third?'<div class="panel third"><div class="ttl">'+ic('trophy',18)+B('مباراة المركز الثالث','Third-place match')+'</div>'+(T0.third.a==null?'<div class="sh-d">'+B('تُلعب بين الخاسرين في نصف النهائي','Played between the semifinal losers')+'</div>':'')+card(T0.third,-1,0)+(T0.third.w!=null?'<div class="sh-d" style="margin-top:8px">'+ic('check',16,"in")+' '+B('المركز الثالث: ','Third place: ')+'<b>'+H(T0.teams[T0.third.w].n)+'</b></div>':'')+'</div>':'')
   +'<div class="row"><button onclick="S.view=\'menu\';render()">'+t('back')+'</button>'+(S.cur&&S.started&&!S.ended?'<button class="gold" onclick="S.view=\'match\';render()">'+ic('play',18)+t('cont')+'</button>':'')+'<button onclick="resetT()">'+ic('rev',18)+B('بطولة جديدة','New tournament')+'</button></div>'}
 
 /* ---------- draw / dice ---------- */
